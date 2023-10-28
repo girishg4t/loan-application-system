@@ -7,7 +7,7 @@ type Account struct {
 	AssetsValue  int `json:"assetsValue"`
 }
 
-type AssetValue struct {
+type Summary struct {
 	Count         int
 	SumAssetValue int
 	ProfitOrLoss  int
@@ -17,7 +17,7 @@ type FinalOutput struct {
 	Name              string
 	EstablishedYear   int
 	PreAssessment     int
-	SummaryProfitLoss map[int]*AssetValue
+	SummaryProfitLoss map[int]int
 }
 
 type UserApplication struct {
@@ -26,4 +26,9 @@ type UserApplication struct {
 	LoanAmount      int
 	Address         string
 	AccountProvider string
+}
+
+type FinalOutcome struct {
+	Decision       bool `json:"decision"`
+	ApprovedAmount int  `json:"approved_amount"`
 }
