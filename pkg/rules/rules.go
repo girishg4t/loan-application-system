@@ -1,72 +1,94 @@
 package rules
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/loan-application-system/pkg/model"
 )
 
 const (
-	DEFAULT_PREASSESSMENT = 20
-	FAVORED_PREASSESSMENT = 60
-	FULL_PREASSESSMENT    = 100
+	DEFAULT_PRE_ASSESSMENT = 20
+	FAVORED_PRE_ASSESSMENT = 60
+	FULL_PRE_ASSESSMENT    = 100
 )
 
-type RuleEngine struct {
-	lastYear int
+type IRuleEngine interface {
+	RequestOutcome(a model.UserApplication) model.FinalOutput
 }
 
-func NewRuleEngine() RuleEngine {
-	// Assuming loan is applied in current year only
-	t := time.Now()
-	year := t.Year()
+type RuleEngine struct {
+	report       model.Report
+	balanceSheet []model.Account
+	lastMonths   map[string]*model.TransformedBalanceSheet
+}
+
+func NewRuleEngine(bs []model.Account) IRuleEngine {
+	lm := getLastTwelveMonthKey()
+	r := transformBalanceSheet(bs)
 	return RuleEngine{
-		lastYear: year - 1,
+		lastMonths:   lm,
+		balanceSheet: bs,
+		report:       r,
 	}
 }
 
-func (r RuleEngine) GetSummary(a model.UserApplication, bs []model.Account) model.FinalOutput {
-	report := r.MakeReport(bs)
-	s := r.getPnLSummary(report)
+func (r RuleEngine) RequestOutcome(a model.UserApplication) model.FinalOutput {
 	// Apply rules on last 12 months
-	p := r.ruleEngine(report, a.LoanAmount)
+	p := r.applyRule(a.LoanAmount)
+
 	return model.FinalOutput{
 		Name:              a.BusinessName,
 		EstablishedYear:   a.EstablishedYear,
 		PreAssessment:     p,
-		SummaryProfitLoss: s,
+		SummaryProfitLoss: r.report.YearWiseProfitOrLoss,
 	}
 }
 
-func (r RuleEngine) ruleEngine(report map[int]*model.Summary, loanAmount int) int {
-	if report[r.lastYear].ProfitOrLoss > 0 {
-		avgAssetValue := report[r.lastYear].SumAssetValue / report[r.lastYear].Count
-		if avgAssetValue > loanAmount {
-			return FULL_PREASSESSMENT
+func (r RuleEngine) applyRule(loanAmount int) int {
+	if r.report.ProfitOrLoss > 0 {
+		if r.report.AvgAssetValue > loanAmount {
+			return FULL_PRE_ASSESSMENT
 		}
-		return FAVORED_PREASSESSMENT
+		return FAVORED_PRE_ASSESSMENT
 	}
-	return DEFAULT_PREASSESSMENT
+	return DEFAULT_PRE_ASSESSMENT
 }
 
-func (r RuleEngine) getPnLSummary(rep map[int]*model.Summary) map[int]int {
-	var plSum map[int]int = make(map[int]int)
-	for key, value := range rep {
-		plSum[key] = value.ProfitOrLoss
+func transformBalanceSheet(bs []model.Account) model.Report {
+	lastMonths := getLastTwelveMonthKey()
+	var key string
+	var report = model.Report{
+		AvgAssetValue:        0,
+		ProfitOrLoss:         0,
+		YearWiseProfitOrLoss: map[int]int{},
 	}
-	return plSum
-}
-
-func (r RuleEngine) MakeReport(bs []model.Account) map[int]*model.Summary {
-	var yearAvgAssetValue = make(map[int]*model.Summary)
+	var avgCount int
 	for _, val := range bs {
-		if yearAvgAssetValue[val.Year] == nil {
-			yearAvgAssetValue[val.Year] = &model.Summary{}
-		}
-		yearAvgAssetValue[val.Year].SumAssetValue = yearAvgAssetValue[val.Year].SumAssetValue + val.AssetsValue
-		yearAvgAssetValue[val.Year].Count++
-		yearAvgAssetValue[val.Year].ProfitOrLoss = yearAvgAssetValue[val.Year].ProfitOrLoss + val.ProfitOrLoss
-	}
+		key = fmt.Sprintf("%d-%d", val.Year, val.Month)
+		if lastMonths[key] != nil {
+			lastMonths[key].AssetValue = val.AssetsValue
+			lastMonths[key].ProfitOrLoss = val.ProfitOrLoss
 
-	return yearAvgAssetValue
+			report.ProfitOrLoss = report.ProfitOrLoss + val.ProfitOrLoss
+			report.AvgAssetValue = report.AvgAssetValue + val.AssetsValue
+			avgCount++
+		}
+		report.YearWiseProfitOrLoss[val.Year] = report.YearWiseProfitOrLoss[val.Year] + val.ProfitOrLoss
+	}
+	report.AvgAssetValue = report.AvgAssetValue / avgCount
+	return report
+}
+
+func getLastTwelveMonthKey() map[string]*model.TransformedBalanceSheet {
+	currentTime := time.Now()
+	currentTime = time.Date(currentTime.Year(), currentTime.Month(), 10, 23, 0, 0, 0, time.UTC)
+
+	var lastTran = map[string]*model.TransformedBalanceSheet{}
+	for i := 1; i <= 12; i++ {
+		date := currentTime.AddDate(0, -i, 0)
+		lastTran[fmt.Sprintf("%d-%d", int(date.Year()), int(date.Month()))] = &model.TransformedBalanceSheet{}
+
+	}
+	return lastTran
 }

@@ -6,11 +6,15 @@ type Account struct {
 	ProfitOrLoss int `json:"profitOrLoss"`
 	AssetsValue  int `json:"assetsValue"`
 }
+type Report struct {
+	AvgAssetValue        int
+	ProfitOrLoss         int
+	YearWiseProfitOrLoss map[int]int
+}
 
-type Summary struct {
-	Count         int
-	SumAssetValue int
-	ProfitOrLoss  int
+type TransformedBalanceSheet struct {
+	AssetValue   int
+	ProfitOrLoss int
 }
 
 type FinalOutput struct {
@@ -31,4 +35,8 @@ type UserApplication struct {
 type FinalOutcome struct {
 	Decision       bool `json:"decision"`
 	ApprovedAmount int  `json:"approved_amount"`
+}
+
+type Outcome struct {
+	YearWiseReport map[int]Report
 }

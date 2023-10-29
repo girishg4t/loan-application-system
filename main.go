@@ -8,12 +8,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	accountsoftware "github.com/loan-application-system/pkg/account-software"
-	decisionengine "github.com/loan-application-system/pkg/decision-engine"
+	"github.com/loan-application-system/pkg/account_software"
+	"github.com/loan-application-system/pkg/decision_engine"
 	"github.com/loan-application-system/pkg/handler"
 	"github.com/loan-application-system/pkg/middleware"
 	"github.com/loan-application-system/pkg/model"
-	"github.com/loan-application-system/pkg/rules"
 )
 
 func main() {
@@ -22,19 +21,18 @@ func main() {
 		log.Fatalln("error loading .env file")
 	}
 
-	re := rules.NewRuleEngine()
-	as := accountsoftware.NewAccountSoftware()
-	de := decisionengine.NewDecisionEngine()
+	as := account_software.NewAccountSoftware()
+	de := decision_engine.NewDecisionEngine()
 
 	m := middleware.AuthProvider{Config: model.Config{
 		ApiKey: os.Getenv("API_KEY"),
 	}}
 	r := mux.NewRouter()
-	h := handler.NewUserHandler(re, as, de)
+	h := handler.NewUserHandler(as, de)
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.Use(m.Authenticate)
-	api.Path("/balancesheet/{accProvider}").HandlerFunc(h.HandleBalanceSheet).Methods(http.MethodPost)
-	api.Path("/submit").HandlerFunc(h.HandleSubmitApplication).Methods(http.MethodPost)
+	api.Path("/{businessName}/balancesheet/{accProvider}").HandlerFunc(h.HandleBalanceSheet).Methods(http.MethodPost)
+	api.Path("/{businessName}/submit").HandlerFunc(h.HandleSubmitApplication).Methods(http.MethodPost)
 
 	port := os.Getenv("PORT")
 	log.Println("Running local on port: ", port)

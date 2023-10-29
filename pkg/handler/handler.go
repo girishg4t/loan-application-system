@@ -7,36 +7,42 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	accountsoftware "github.com/loan-application-system/pkg/account-software"
-	decisionengine "github.com/loan-application-system/pkg/decision-engine"
+	"github.com/loan-application-system/pkg/account_software"
+	"github.com/loan-application-system/pkg/decision_engine"
 	"github.com/loan-application-system/pkg/model"
 	"github.com/loan-application-system/pkg/rules"
 )
 
 type UserHandler struct {
-	re rules.RuleEngine
-	as accountsoftware.IAccountSoftware
-	de decisionengine.IDecisionEngine
+	as account_software.IAccountSoftware
+	de decision_engine.IDecisionEngine
 }
 
-func NewUserHandler(re rules.RuleEngine, as accountsoftware.IAccountSoftware, de decisionengine.IDecisionEngine) UserHandler {
+func NewUserHandler(as account_software.IAccountSoftware, de decision_engine.IDecisionEngine) UserHandler {
 	return UserHandler{
-		re: re,
 		as: as,
 		de: de,
 	}
-
 }
 
 func (h UserHandler) HandleBalanceSheet(w http.ResponseWriter, req *http.Request) {
 	log.Println("handling user request for loan application")
-	accProvider := mux.Vars(req)["accProvider"]
-	if accProvider == "" {
-		http.Error(w, "invalid account provider", http.StatusBadRequest)
+
+	bn := mux.Vars(req)["businessName"]
+	if bn == "" {
+		http.Error(w, "business name is empty", http.StatusBadRequest)
+
 		return
 	}
 
-	bs := h.as.GetBalanceSheet(accProvider)
+	ap := mux.Vars(req)["accProvider"]
+	if ap == "" {
+		http.Error(w, "account provider is empty", http.StatusBadRequest)
+
+		return
+	}
+
+	bs := h.as.GetBalanceSheet(req.Context(), model.UserApplication{AccountProvider: ap, BusinessName: bn})
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(bs)
@@ -50,6 +56,7 @@ func (h UserHandler) HandleSubmitApplication(w http.ResponseWriter, req *http.Re
 	if err != nil {
 		// If the structure of the body is wrong, return an HTTP error
 		w.WriteHeader(http.StatusBadRequest)
+
 		return
 	}
 
@@ -57,12 +64,14 @@ func (h UserHandler) HandleSubmitApplication(w http.ResponseWriter, req *http.Re
 		err := fmt.Errorf("loan amount is not valid")
 		_ = json.NewEncoder(w).Encode(err)
 		w.WriteHeader(http.StatusBadRequest)
+
 		return
 	}
-	bs := h.as.GetBalanceSheet(u.AccountProvider)
+	bs := h.as.GetBalanceSheet(req.Context(), u)
 
-	out := h.re.GetSummary(u, bs)
-	decision := h.de.MakeDecision(out)
+	rule := rules.NewRuleEngine(bs)
+	out := rule.RequestOutcome(u)
+	decision := h.de.MakeDecision(req.Context(), out)
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(model.FinalOutcome{
