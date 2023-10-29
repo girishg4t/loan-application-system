@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/loan-application-system/pkg/account_software"
@@ -50,15 +51,27 @@ func (h UserHandler) HandleBalanceSheet(w http.ResponseWriter, req *http.Request
 
 func (h UserHandler) HandleSubmitApplication(w http.ResponseWriter, req *http.Request) {
 	log.Println("handling user request for loan application")
-
 	var u model.UserApplication
-	err := json.NewDecoder(req.Body).Decode(&u)
+	u.BusinessName = req.FormValue("business_name")
+	lm, err := strconv.Atoi(req.FormValue("loan_amount"))
 	if err != nil {
 		// If the structure of the body is wrong, return an HTTP error
 		w.WriteHeader(http.StatusBadRequest)
 
 		return
 	}
+
+	u.LoanAmount = lm
+	ey, err := strconv.Atoi(req.FormValue("established_year"))
+	if err != nil {
+		// If the structure of the body is wrong, return an HTTP error
+		w.WriteHeader(http.StatusBadRequest)
+
+		return
+	}
+
+	u.EstablishedYear = ey
+	u.AccountProvider = req.FormValue("account_provider")
 
 	if u.LoanAmount <= 0 {
 		err := fmt.Errorf("loan amount is not valid")
@@ -76,6 +89,6 @@ func (h UserHandler) HandleSubmitApplication(w http.ResponseWriter, req *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(model.FinalOutcome{
 		Decision:       decision,
-		ApprovedAmount: (out.PreAssessment / 100) * u.LoanAmount,
+		ApprovedAmount: int(float32(out.PreAssessment) / float32(100) * float32(u.LoanAmount)),
 	})
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/loan-application-system/pkg/handler"
 	"github.com/loan-application-system/pkg/middleware"
 	"github.com/loan-application-system/pkg/model"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -36,5 +37,16 @@ func main() {
 
 	port := os.Getenv("PORT")
 	log.Println("Running local on port: ", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), r))
+	c := cors.New(cors.Options{
+		AllowedHeaders: []string{"X-API-KEY"},
+		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
+
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(api)
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), handler))
+
 }
