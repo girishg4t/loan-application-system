@@ -26,6 +26,7 @@ func NewUserHandler(as account_software.IAccountSoftware, de decision_engine.IDe
 	}
 }
 
+// Handle Balance sheet api
 func (h UserHandler) HandleBalanceSheet(w http.ResponseWriter, req *http.Request) {
 	log.Println("handling user request for loan application")
 
@@ -49,6 +50,7 @@ func (h UserHandler) HandleBalanceSheet(w http.ResponseWriter, req *http.Request
 	_ = json.NewEncoder(w).Encode(bs)
 }
 
+// Handle Submit application api
 func (h UserHandler) HandleSubmitApplication(w http.ResponseWriter, req *http.Request) {
 	log.Println("handling user request for loan application")
 	var u model.UserApplication

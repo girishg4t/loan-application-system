@@ -74,6 +74,7 @@ var dummyBalanceSheet = map[string][]model.Account{
 	},
 }
 
+// GetBalanceSheet will return balance sheet based on business name and account provider
 func (a AccountSoftware) GetBalanceSheet(ctx context.Context, app model.UserApplication) []model.Account {
 	return dummyBalanceSheet[strings.ToUpper(fmt.Sprintf("%s-%s", app.BusinessName, app.AccountProvider))]
 }

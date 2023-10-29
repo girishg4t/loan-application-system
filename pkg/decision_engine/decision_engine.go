@@ -17,6 +17,7 @@ func NewDecisionEngine() DecisionEngine {
 	return DecisionEngine{}
 }
 
+// MakeDecision will make the decision based on preAssessment value
 func (d DecisionEngine) MakeDecision(ctx context.Context, r model.FinalOutput) bool {
 	return r.PreAssessment > 20
 }

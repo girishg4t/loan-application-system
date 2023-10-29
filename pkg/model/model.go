@@ -36,7 +36,3 @@ type FinalOutcome struct {
 	Decision       bool `json:"decision"`
 	ApprovedAmount int  `json:"approved_amount"`
 }
-
-type Outcome struct {
-	YearWiseReport map[int]Report
-}

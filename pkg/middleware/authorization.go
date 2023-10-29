@@ -21,7 +21,7 @@ func NewAuthProvider(config model.Config) AuthProvider {
 	}
 }
 
-// Authenticate check if the logged-in user is valid
+// Authenticate check if frontend application is valid
 func (ap *AuthProvider) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
