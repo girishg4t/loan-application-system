@@ -1,8 +1,10 @@
 # Loan Application
 
 ## Instruction for Backend and Frontend
-1) https://github.com/girishg4t/loan-application-system/Backend/README.md
-2) https://github.com/girishg4t/loan-application-system/Frontend/README.md
+1) https://github.com/girishg4t/loan-application-system/blob/main/Backend/README.md
+2) https://github.com/girishg4t/loan-application-system/blob/main/Frontend/README.md
+
+
 ### How to run the application
 1) Create .env file with variable 
 ```sh
@@ -16,12 +18,12 @@ docker-compose up -d
 
 ### Working demo
 Balance sheet of Business ABC and provider Xero   
-![alt text](https://github.com/girishg4t/loan-application-system/balance-sheet.png?raw=true)
+![Balance sheet ABC-Xero](./balance-sheet.png)
 Balance sheet of Business XYZ and provider MYOB  
-![alt text](https://github.com/girishg4t/loan-application-system/xyz-balance-sheet.png?raw=true)
+![Balance sheet XYZ-MYOB](./xyz-balance-sheet.png?raw=true)
 When profit is positive and loan amount is less then asset value   
-![alt text](https://github.com/girishg4t/loan-application-system/full-approved-loan.png?raw=true)
+![ABC Loan Approved 100%](./full-approved-loan.png?raw=true)
 When profit is positive and loan amount is greater then asset value (only 60 % is approved)
-![alt text](https://github.com/girishg4t/loan-application-system/appove-loand-60.png?raw=true)
+![ABC Loan Approved 60%](./appove-loand-60.png?raw=true)
 When profit is negative so loan is not approved
-![alt text](https://github.com/girishg4t/loan-application-system/loan-not-approved.png?raw=true)
+![XYZ no Loan Approved](./loan-not-approved.png?raw=true)
