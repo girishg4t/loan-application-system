@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  loan-application-fronend:
+    container_name: loan-application-fronend
+    build: ./Frontend/
+    hostname: loan-application-fronend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loan-application-backend
+    networks:
+      - web
+
+  loan-application-backend:
+    container_name: loan-application-backend
+    build: ./Backend/
+    hostname: loan-application-backend
+    environment:
+      PORT: 8080
+      API_KEY: super-secret
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+networks:
+  web:
