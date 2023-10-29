@@ -6,7 +6,7 @@
 
 
 ### How to run the application
-1) Create .env file with variable 
+1) Create .env file in Backend folder with variable 
 ```sh
 PORT=8080
 API_KEY=super-secret
