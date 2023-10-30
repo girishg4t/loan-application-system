@@ -18,12 +18,12 @@ docker-compose up -d
 
 ### Working demo
 Balance sheet of Business ABC and provider Xero   
-![Balance sheet ABC-Xero](./balance-sheet.png)
+![Balance sheet ABC-Xero](./images/balance-sheet.png)
 Balance sheet of Business XYZ and provider MYOB  
-![Balance sheet XYZ-MYOB](./xyz-balance-sheet.png?raw=true)
+![Balance sheet XYZ-MYOB](./images/xyz-balance-sheet.png?raw=true)
 When profit is positive and loan amount is less then asset value   
-![ABC Loan Approved 100%](./full-approved-loan.png?raw=true)
+![ABC Loan Approved 100%](./images/full-approved-loan.png?raw=true)
 When profit is positive and loan amount is greater then asset value (only 60 % is approved)
-![ABC Loan Approved 60%](./appove-loand-60.png?raw=true)
+![ABC Loan Approved 60%](./images/appove-loand-60.png?raw=true)
 When profit is negative so loan is not approved
-![XYZ no Loan Approved](./loan-not-approved.png?raw=true)
+![XYZ no Loan Approved](./images/loan-not-approved.png?raw=true)

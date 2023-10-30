@@ -2,8 +2,8 @@
 
 
 ### Assumptions
-1) The application will only work for 2 business ABC and XYZ, this is because data is only set for this companies.
-2) Currently no validation is performed on frontend site.
+1) The application will only work for 2 businesses ABC and XYZ, this is because data is only set for these companies.
+2) Currently no validation is performed on the frontend site.
 3) Backend api will only be called with X-API-KEY as 'super-secret'
 
 

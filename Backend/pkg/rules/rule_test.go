@@ -19,7 +19,7 @@ var _ = Describe("webhook", func() {
 	})
 	Context("Verify Rules", func() {
 		It("Verify last 12 months get calculated correctly", func() {
-			dates := getLastTwelveMonthData()
+			dates := getLastTwelveMonths()
 			Expect(len(dates)).Should(Equal(12))
 		})
 		It("Verify report is generated correctly for Business ABC and Account provider XERO", func() {

@@ -20,14 +20,11 @@ type IRuleEngine interface {
 type RuleEngine struct {
 	report       model.Report
 	balanceSheet []model.Account
-	lastMonths   map[string]*model.TransformedBalanceSheet
 }
 
 func NewRuleEngine(bs []model.Account) IRuleEngine {
-	lm := getLastTwelveMonthData()
 	r := transformBalanceSheet(bs)
 	return RuleEngine{
-		lastMonths:   lm,
 		balanceSheet: bs,
 		report:       r,
 	}
@@ -62,8 +59,7 @@ func (r RuleEngine) applyRule(loanAmount int) int {
 // here average is calculated based on the data which is present for last 12 months,
 // if the data is available for 10 months then the Average is calculated for that many months.
 func transformBalanceSheet(bs []model.Account) model.Report {
-	lastMonths := getLastTwelveMonthData()
-
+	last12Months := getLastTwelveMonths()
 	var report = model.Report{
 		AvgAssetValue:        0,
 		ProfitOrLoss:         0,
@@ -73,7 +69,7 @@ func transformBalanceSheet(bs []model.Account) model.Report {
 	var key string
 	for _, val := range bs {
 		key = fmt.Sprintf("%d-%d", val.Year, val.Month)
-		if lastMonths[key] != nil {
+		if last12Months[key] != nil {
 			report.ProfitOrLoss = report.ProfitOrLoss + val.ProfitOrLoss
 			report.AvgAssetValue = report.AvgAssetValue + val.AssetsValue
 			avgCount++
@@ -84,10 +80,10 @@ func transformBalanceSheet(bs []model.Account) model.Report {
 	return report
 }
 
-// getLastTwelveMonthData get's the data for last 12 months
+// getLastTwelveMonths get's the data for last 12 months
 // Here date as taken 10 of current month, this is because to avoid months calculation, sine some month as 29 days
 // Year-Month wise data get stored for last 12 months only
-func getLastTwelveMonthData() map[string]*model.TransformedBalanceSheet {
+func getLastTwelveMonths() map[string]*model.TransformedBalanceSheet {
 	currentTime := time.Now()
 	currentTime = time.Date(currentTime.Year(), currentTime.Month(), 10, 23, 0, 0, 0, time.UTC)
 
