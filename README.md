@@ -10,6 +10,8 @@
 ```sh
 PORT=8080
 API_KEY=super-secret
+REDIS_ADDRESS=localhost:6379
+REDIS_DATABASE=0
 ```
 2) Run the docker compose command as
 ```sh

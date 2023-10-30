@@ -8,6 +8,7 @@
 3) Api's are secured based on 'X-API-KEY: super-secret', so that only frontend with that key should only be able to call the backend. It needs to be passed in the header.
 4) Test cases are added for core logic which are present [here](https://github.com/girishg4t/loan-application-system/blob/main/Backend/pkg/rules/rule_test.go)
 5) In Decision engine current implementation if preAssessment value is 20 then loan is not approved
+6) Added redis to store balance sheet of the selected business 
 
 
 ### Api's exposed are

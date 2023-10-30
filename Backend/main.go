@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -13,6 +15,7 @@ import (
 	"github.com/loan-application-system/pkg/handler"
 	"github.com/loan-application-system/pkg/middleware"
 	"github.com/loan-application-system/pkg/model"
+	"github.com/loan-application-system/pkg/redis"
 	"github.com/rs/cors"
 )
 
@@ -21,8 +24,14 @@ func main() {
 	if err != nil {
 		log.Fatalln("error loading .env file")
 	}
-
-	as := account_software.NewAccountSoftware()
+	rdb, err := strconv.Atoi(os.Getenv("REDIS_DATABASE"))
+	if err != nil {
+		log.Fatalln("failed to get redis config")
+	}
+	as := account_software.NewAccountSoftware(context.Background(), redis.Config{
+		Database: rdb,
+		Address:  os.Getenv("REDIS_ADDRESS"),
+	})
 	de := decision_engine.NewDecisionEngine()
 
 	m := middleware.AuthProvider{Config: model.Config{

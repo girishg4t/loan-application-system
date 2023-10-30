@@ -1,5 +1,15 @@
 version: "3.8"
 services:
+  loan-application-redis:
+    container_name: loan-application-redis
+    image: redis:6.2.11-alpine3.17
+    hostname: loan-application-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - web
+
   loan-application-fronend:
     container_name: loan-application-fronend
     build: ./Frontend/
@@ -18,8 +28,12 @@ services:
     environment:
       PORT: 8080
       API_KEY: super-secret
+      REDIS_ADDRESS: loan-application-redis:6379
+      REDIS_DATABASE: 0
     ports:
       - "8080:8080"
+    depends_on:
+      - loan-application-redis
     networks:
       - web
 networks:
